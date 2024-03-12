@@ -1,50 +1,54 @@
-"""
+'''
 Browse through the specified files and create table of contents (TOC) in each file.
 If already existing, the TOC will be updated.
 
 Usage:
 ------
-python md-toc "myfile.md", "mypath/"
+python md-toc -r "https.github/repo.git" -f "myfile.md", "mypath/"
 
 Parameters:
 -----------
 files : list of str, default=[]
     Example: ["myfile.md", "newfile.md", "mypath/"]
 
-"""
+'''
 
 import sys
+import argparse
+
 
 
 def main():
-    args = sys.argv[1:]
-        
-    # Parse command line arguments
-    print(f"Parsing {len(args)} arguments:")
-    filenames = []
-    for arg in args:
-        print(f"- {arg}", end=" ")
-        if arg[-1] == "/" or arg[-1] == "\\":
-            # TODO: Path detected
-            print("path detected.")
-        else:
-            filenames.append(arg)
-            print("appended to file list.")
-    print("Total # of filenames:", len(filenames))
-    files_updated = 0
 
+    args = sys.argv[1:]
+    url, filenames, paths = parse_command_line(args)
+    print(f"url={url}")
+    print(f"files={filenames}") 
+    print(f"paths={paths}")
+
+    """
+    files_updated = 0
     # Update table of content
     for filename in filenames:
         if update_toc(filename):
             files_updated += 1
+    """
 
+def parse_command_line(args) -> tuple:
+    # Parse command line
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--url", nargs='?', default=None) 
+    parser.add_argument("-f", "--files", nargs="+", default=None)  
+    parser.add_argument("-p", "--paths", nargs="+", default=None)
 
-def read_content(filename: str) -> str:
-    return "Test\nMe\n"
+    args = parser.parse_args()
 
+    url = args.url
+    filenames = args.files
+    paths = args.paths
 
-def create_toc(file: str) -> str:
-    return "ToC\n"
+    return url, filenames, paths
 
 
 def update_toc(filename: str) -> bool:
@@ -57,6 +61,14 @@ def update_toc(filename: str) -> bool:
         file = insert_toc(file,toc)
     save_file(file, filename)
     return True
+
+
+def read_content(filename: str) -> str:
+    return "Test\nMe\n"
+
+
+def create_toc(file: str) -> str:
+    return "ToC\n"
 
 
 def toc_exists(file: str) -> bool:
