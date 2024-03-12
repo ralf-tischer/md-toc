@@ -12,14 +12,10 @@ files : list of str, default=[]
     Example: ["myfile.md", "newfile.md", "mypath/"]
 
 '''
-
 import sys
 import argparse
 
-
-
 def main():
-
     args = sys.argv[1:]
     url, filenames, paths = parse_command_line(args)
     print(f"url={url}")
@@ -35,8 +31,7 @@ def main():
     """
 
 def parse_command_line(args) -> tuple:
-    # Parse command line
-    
+    # Parse command line  
     parser = argparse.ArgumentParser()
     parser.add_argument("-r", "--url", nargs='?', default=None) 
     parser.add_argument("-f", "--files", nargs="+", default=None)  
