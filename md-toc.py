@@ -16,8 +16,7 @@ import sys
 import argparse
 
 def main():
-    args = sys.argv[1:]
-    url, filenames, paths = parse_command_line(args)
+    url, filenames, paths = parse_command_line()
     print(f"url={url}")
     print(f"files={filenames}") 
     print(f"paths={paths}")
@@ -30,7 +29,7 @@ def main():
             files_updated += 1
     """
 
-def parse_command_line(args) -> tuple:
+def parse_command_line() -> tuple:
     # Parse command line  
     parser = argparse.ArgumentParser()
     parser.add_argument("-r", "--url", nargs='?', default=None) 
