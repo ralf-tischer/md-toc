@@ -4,8 +4,11 @@ If already existing, the TOC will be updated.
 
 Usage:
 ------
-python md-toc -r "https.github/repo.git" -f "myfile.md", "mypath/"
-
+python md-toc -r "https.github/repo.git" -f "myfile.md" -p "mypath/" 
+    -r or --url: url
+    -f or --files: list of flies
+    -p or --paths: list of paths
+    
 Parameters:
 -----------
 files : list of str, default=[]
