@@ -17,7 +17,6 @@ Examples
 import argparse
 import re
 
-
 ANCHOR_REGEX = r"^#+\s*(.+?)\s*#*"
 HEADING_LEVELS = {
     "#": 1, 
@@ -74,9 +73,6 @@ def read_content(filename: str) -> str:
 def create_toc(file: str) -> str:
     anchors = get_anchors(file)
     print("Anchors:", anchors)
-
-
-
     return "ToC\n"
 
 
@@ -116,18 +112,21 @@ def get_anchors(file: str) -> list:
             print("level", level, "for line\n", line)
             heading = line[level:].strip()
 
-            existing = next((item for item in anchors if item["heading"] == heading), None)
-
-            # TODO: count up, but create a new entry 
+            # Check if the header exists in anchors
+            existing = [item for item in anchors if item["heading"] == heading]
+            
+            # TODO: check count up, but create a new entry 
             if existing:
-                existing["repeat"] += 1  
+                max_repeat = max(item["repeat"] for item in existing)
+                repeat += msx_repeat + 1
             else:
-                anchor = {
-                    "heading": heading, 
-                    "url": f'#{heading.lower().replace(" ", "-")}',
-                    "repeat": 0,
-                    "level": level
-                }       
+                repeat = 0
+            anchor = {
+                "heading": heading, 
+                "url": f'#{heading.lower().replace(" ", "-")}',
+                "repeat": repeat,
+                "level": level
+            }       
             anchors.append(anchor)
 
     return anchors
@@ -143,7 +142,6 @@ def get_heading_level(line) -> int:
             prefix += char
         else:
             break
-
     return count
 
 
