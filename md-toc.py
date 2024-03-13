@@ -2,18 +2,13 @@
 Browse through the specified files and create table of contents (TOC) in each file.
 If already existing, the TOC will be updated.
 
-Usage:
-------
-python md-toc -r "https.github/repo.git" -f "myfile.md" -p "mypath/" 
-    -r or --url: url
-    -f or --files: list of flies
-    -p or --paths: list of paths
-    
 Parameters:
 -----------
-files : list of str, default=[]
-    Example: ["myfile.md", "newfile.md", "mypath/"]
-
+python md-toc -r "https.github/repo.git" -f "myfile.md" -p "mypath/" 
+    -r or --url: url
+    -f or --files: list of files, default=None
+    -p or --paths: list of paths, default=None
+    
 '''
 import sys
 import argparse
@@ -35,9 +30,9 @@ def main():
 def parse_command_line() -> tuple:
     # Parse command line  
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--url", nargs='?', default=None) 
-    parser.add_argument("-f", "--files", nargs="+", default=None)  
-    parser.add_argument("-p", "--paths", nargs="+", default=None)
+    parser.add_argument("-r", "--url", required=True) 
+    parser.add_argument("-f", "--files", nargs="+", default=[])  
+    parser.add_argument("-p", "--paths", nargs="+", default=[])
 
     args = parser.parse_args()
 
