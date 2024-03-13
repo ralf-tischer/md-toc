@@ -4,43 +4,52 @@ If already existing, the TOC will be updated.
 
 Parameters:
 -----------
-python md-toc -r "https.github/repo.git" -f "myfile.md" -p "mypath/" 
-    -r or --url: url
+python md-toc -f "myfile.md" -p "mypath/" 
     -f or --files: list of files, default=None
     -p or --paths: list of paths, default=None
+
+Examples
+--------
+-r https://github.com/RalfTischer/coding-cookbook
+-f general.md
     
 '''
-import sys
 import argparse
+import re
+
+
+ANCHOR_REGEX = r"^#+\s*(.+?)\s*#*"
+HEADING_LEVELS = {
+    "#": 1, 
+    "##": 2,
+    "###": 3
+}
+
 
 def main():
-    url, filenames, paths = parse_command_line()
-    print(f"url={url}")
+    filenames, paths = parse_command_line()
     print(f"files={filenames}") 
     print(f"paths={paths}")
 
-    """
     files_updated = 0
     # Update table of content
     for filename in filenames:
         if update_toc(filename):
             files_updated += 1
-    """
+
 
 def parse_command_line() -> tuple:
     # Parse command line  
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--url", required=True) 
     parser.add_argument("-f", "--files", nargs="+", default=[])  
     parser.add_argument("-p", "--paths", nargs="+", default=[])
 
     args = parser.parse_args()
 
-    url = args.url
     filenames = args.files
     paths = args.paths
 
-    return url, filenames, paths
+    return filenames, paths
 
 
 def update_toc(filename: str) -> bool:
@@ -56,10 +65,18 @@ def update_toc(filename: str) -> bool:
 
 
 def read_content(filename: str) -> str:
-    return "Test\nMe\n"
+  """Reads the content of a file from the local directory"""
+  with open(filename) as f:
+    content = f.read()
+  return content
 
 
 def create_toc(file: str) -> str:
+    anchors = get_anchors(file)
+    print("Anchors:", anchors)
+
+
+
     return "ToC\n"
 
 
@@ -76,9 +93,59 @@ def insert_toc(file: str, toc: str) -> str:
 
 
 def save_file(file: str, filename: str) -> str:
-    print(f"Content of {filename}:")
-    print(file)
     return True
+
+
+def get_anchors(file: str) -> list:
+
+    anchors = []
+    lines = file.split("\n")
+
+    in_code_block = False
+
+    for line in lines:
+        if "```" in line:
+            in_code_block = not in_code_block
+            continue
+
+        if in_code_block or re.search(r"`.*?#.*?`", line):  
+            continue
+
+        if line.startswith("#") and "```" not in line:
+            level = get_heading_level(line)
+            print("level", level, "for line\n", line)
+            heading = line[level:].strip()
+
+            existing = next((item for item in anchors if item["heading"] == heading), None)
+
+            # TODO: count up, but create a new entry 
+            if existing:
+                existing["repeat"] += 1  
+            else:
+                anchor = {
+                    "heading": heading, 
+                    "url": f'#{heading.lower().replace(" ", "-")}',
+                    "repeat": 0,
+                    "level": level
+                }       
+            anchors.append(anchor)
+
+    return anchors
+
+
+def get_heading_level(line) -> int:
+    count = 0
+    prefix = ""
+
+    for char in line:
+        if char == "#":
+            count += 1
+            prefix += char
+        else:
+            break
+
+    return count
+
 
 if __name__ == "__main__":
     main()
