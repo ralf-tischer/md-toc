@@ -21,7 +21,8 @@ ANCHOR_REGEX = r"^#+\s*(.+?)\s*#*"
 HEADING_LEVELS = {
     "#": 1, 
     "##": 2,
-    "###": 3
+    "###": 3, 
+    "####": 4
 }
 
 
@@ -29,6 +30,8 @@ def main():
     filenames, paths = parse_command_line()
     print(f"files={filenames}") 
     print(f"paths={paths}")
+
+    # TODO: paths
 
     files_updated = 0
     # Update table of content
@@ -38,7 +41,13 @@ def main():
 
 
 def parse_command_line() -> tuple:
-    # Parse command line  
+    """ Parse command line. 
+
+    Returns
+    -------
+    filenames : list of str
+    paths : list of paths
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--files", nargs="+", default=[])  
     parser.add_argument("-p", "--paths", nargs="+", default=[])
@@ -47,13 +56,23 @@ def parse_command_line() -> tuple:
 
     filenames = args.files
     paths = args.paths
-
     return filenames, paths
 
 
 def update_toc(filename: str) -> bool:
+    """ Update table of content of a single file
+
+    Parameters
+    ----------
+    filename : str
+        Including path, if required
+
+    Returns
+    -------
+    was_updated : bool
+    """
     file = read_content(filename)
-    max_level = 99.  # TODO: max_level
+    max_level = 99  # TODO: max_level
     toc = create_toc(file, max_level)
 
     if toc_exists(file):
@@ -65,13 +84,34 @@ def update_toc(filename: str) -> bool:
 
 
 def read_content(filename: str) -> str:
-  """Reads the content of a file from the local directory"""
+  """ Read the content of a file from the local directory
+  
+  Parameters
+  ----------
+  filename : str
+      Including path, if required
+
+  Returns
+  -------
+  content : str
+  """
   with open(filename) as f:
     content = f.read()
   return content
 
 
 def create_toc(file: str, max_level: int = 99) -> str:
+    """ Create table of content in markdown format
+
+    Parameters
+    ----------
+    file : str
+    max_level : into, default = 99
+
+    Returns
+    -------
+    toc : str
+    """
     anchors = get_anchors(file)
     print("Anchors:", anchors)
     
@@ -100,6 +140,18 @@ def save_file(file: str, filename: str) -> str:
 
 
 def get_anchors(file: str) -> list:
+    """ Parse file and extract anchors. 
+
+    Parameters
+    ----------
+    file : str
+        File content
+
+    Returns
+    -------
+    anchors : list of dicts
+        Keys: heading, link, repeat, level
+    """
 
     anchors = []
     lines = file.split("\n")
@@ -130,16 +182,16 @@ def get_anchors(file: str) -> list:
                 repeat = 0
             anchor = {
                 "heading": heading, 
-                "url": f'#{heading.lower().replace(" ", "-")}',
+                "link": f'#{heading.lower().replace(" ", "-")}',
                 "repeat": repeat,
                 "level": level
             }       
             anchors.append(anchor)
-
     return anchors
 
 
 def get_heading_level(line: str) -> int:
+    """ Get level of a heading line by counting #"""
     count = 0
     for char in line:
         if char == "#":
