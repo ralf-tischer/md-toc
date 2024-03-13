@@ -53,7 +53,8 @@ def parse_command_line() -> tuple:
 
 def update_toc(filename: str) -> bool:
     file = read_content(filename)
-    toc = create_toc(file)
+    max_level = 99.  # TODO: max_level
+    toc = create_toc(file, max_level)
 
     if toc_exists(file):
         file = overwrite_toc(file, toc)
@@ -70,10 +71,16 @@ def read_content(filename: str) -> str:
   return content
 
 
-def create_toc(file: str) -> str:
+def create_toc(file: str, max_level: int = 99) -> str:
     anchors = get_anchors(file)
     print("Anchors:", anchors)
-    return "ToC\n"
+    
+    toc = "## Table of Contents\n\n"    
+    for item in anchors:
+        if item["level"] <= max_level:
+            indent = "  " * (item["level"] - 1)
+            toc += f"{indent}- [{item['heading']}](#{item['link']})\n"
+    return toc
 
 
 def toc_exists(file: str) -> bool:
