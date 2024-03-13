@@ -132,14 +132,11 @@ def get_anchors(file: str) -> list:
     return anchors
 
 
-def get_heading_level(line) -> int:
+def get_heading_level(line: str) -> int:
     count = 0
-    prefix = ""
-
     for char in line:
         if char == "#":
             count += 1
-            prefix += char
         else:
             break
     return count
