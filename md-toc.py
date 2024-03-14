@@ -16,6 +16,17 @@ Examples
 import argparse
 import re
 
+HEADING_TO_LINK = ["| ", " |", "|"]["-",  "-",  "-"]
+'''
+    {"from": " ", "to": "-"},
+    {"from": ",", "to": ""},
+    {"from": ", ", "to": "-"}
+'''
+
+TOC_HEADING = "Table of Contents"
+MD_TOC_TOKEN = "<!-- MD-TOC START LEVEL %L -->\n\n"
+MD_TOC_TOKEN_START = "<!-- MD-TOC START LEVEL "
+MD_TOC_TOKEN_END = "<!-- MD-TOC END -->"
 
 def main():
     filenames, paths = parse_command_line()
@@ -64,7 +75,7 @@ def update_toc(filename: str) -> bool:
     was_updated : bool
     """
 
-    file = read_content(filename)
+    file = read_file(filename)
     max_level = 99  # TODO: max_level
     toc = create_toc(file, max_level)
     print(toc)
@@ -73,26 +84,9 @@ def update_toc(filename: str) -> bool:
         file = overwrite_toc(file, toc)
     else:
         file = insert_toc(file,toc)
+
     save_file(file, filename)
     return True
-
-
-def read_content(filename: str) -> str:
-  """ Read the content of a file from the local directory.
-  
-  Parameters
-  ----------
-  filename : str
-      Including path, if required
-
-  Returns
-  -------
-  content : str
-  """
-
-  with open(filename) as f:
-    content = f.read()
-  return content
 
 
 def create_toc(file: str, max_level: int = 99) -> str:
@@ -111,28 +105,74 @@ def create_toc(file: str, max_level: int = 99) -> str:
     anchors = get_anchors(file)
     print("Anchors:", anchors)
     
-    toc = "# Table of Contents\n\n"    
+    toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "# " + TOC_HEADING + "\n\n"
     for item in anchors:
-        if item["level"] <= max_level:
+        if item["level"] <= max_level and item["heading"] != TOC_HEADING:
             indent = "  " * (item["level"] - 1)
             toc += f"{indent}- [{item['heading']}]({item['link']})\n"
+    toc += "\n" + MD_TOC_TOKEN_END
     return toc
 
 
 def toc_exists(file: str) -> bool:
+    """ Check if file already has a md-toc.
+
+    Parameters
+    ----------
+    file : str
+
+    Returns:
+    --------
+    toc_exists : bool 
+    """
+
+    lines = file.split("\n")
+
+    for line in lines:
+        if line.startswith(MD_TOC_TOKEN_START):
+            return True
     return False
         
     
 def overwrite_toc(file: str, toc: str) -> str:
-    return toc + file
+    """ Overwrite exsiting TOC.
+
+    Find start and end token, delete everything in between and put in new content.
+
+    Parameters
+    ----------
+    file : str
+    toc : str
+
+    Returns:
+    --------
+    updated_file : str 
+    """
+
+    lines = file.split("\n")
+    start = None
+    end = None
+
+    # Find start and end tokens
+    for index, line in enumerate(lines):
+        if line.startswith(MD_TOC_TOKEN_START):
+            start = index
+        elif line.startswith(MD_TOC_TOKEN_END):
+            end = index
+            break
+    
+    print(f"Overwriting TOC between {start} and {end}")
+
+    if start and end:
+        # Slice lines list from start to end
+        #file = lines[:start] + toc + lines[end+1:]
+        file = "\n".join(lines[:start] + [toc] + lines[end+1:])
+
+    return file
 
 
 def insert_toc(file: str, toc: str) -> str:
     return toc + file
-
-
-def save_file(file: str, filename: str) -> str:
-    return True
 
 
 def get_anchors(file: str) -> list:
@@ -164,7 +204,6 @@ def get_anchors(file: str) -> list:
 
         if line.startswith("#") and "```" not in line:
             level = get_heading_level(line)
-            print("level", level, "for line\n", line)
             heading = line[level:].strip()
 
             # Check if the header exists in anchors
@@ -186,6 +225,25 @@ def get_anchors(file: str) -> list:
     return anchors
 
 
+def clean_link(heading: str) -> str:
+    """ Clean link to md format.
+
+    Parameters
+    ----------
+    heading : str
+
+    Returns
+    -------
+    cleaned_link : str
+    """
+
+    print()
+    for element in HEADING_TO_LINK:
+        #heading = re.sub(element["from"], element["to"], heading)
+        heading = heading.replace(element["from"], element["to"])
+    return heading
+
+
 def get_heading_level(line: str) -> int:
     """ Get level of a heading line by counting `#`"""
 
@@ -196,6 +254,45 @@ def get_heading_level(line: str) -> int:
         else:
             break
     return count
+
+
+def read_file(filename: str) -> str:
+  """ Read the content of a file from the local directory.
+  
+  Parameters
+  ----------
+  filename : str
+      Including path, if required
+
+  Returns
+  -------
+  content : str
+  """
+
+  with open(filename) as f:
+    content = f.read()
+  return content
+
+
+def save_file(file: str, filename: str) -> bool:
+    """ Save file on the local directory.
+  
+    Parameters
+    ----------
+    file : str
+        Content to be saved
+    filename : str
+        Including path, if required
+
+    Returns
+    -------
+    success : bool
+    """
+    with open(filename, 'w') as f:
+        # Write the string to the file
+        f.write(file)
+
+    return True
 
 
 if __name__ == "__main__":
