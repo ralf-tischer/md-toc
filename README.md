@@ -1,20 +1,21 @@
+<!-- MD-TOC START LEVEL 99 -->
+
+# Table of Contents
+
+- [First Headline](#First-Headline)
+  - [Subchapter with Attitude](#Subchapter-with-Attitude)
+  - [Subchapter](#Subchapter)
+    - [Subchapter](#Subchapter)
+- [Fun | No Fun](#fun--no-fun)
+- [Second, but great Headline](#Second-but-great-Headline)
+
+<!-- MD-TOC END -->
+
 fblösd jkldsf bla dhjkf
 ksdfjksd
 d dlfkoädf
  sdkfjsd
 
-<!-- MD-TOC START LEVEL 99 -->
-
-# Table of Contents
-
-- [First Headline](#first-headline)
-  - [Subchapter with Attitude](#subchapter-with-attitude)
-  - [Subchapter](#subchapter)
-    - [Subchapter](#subchapter)
-- [Fun | No Fun](#fun-|-no-fun)
-- [Second, but great Headline](#second,-but-great-headline)
-
-<!-- MD-TOC END -->
 
 # First Headline
 Bal dksj

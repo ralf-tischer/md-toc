@@ -16,7 +16,14 @@ Examples
 import argparse
 import re
 
-HEADING_TO_LINK = ["| ", " |", "|"]["-",  "-",  "-"]
+#HEADING_TO_LINK_FROM = [" | ", " |", "| ", " , ", " ,", ", ", ",", " "]
+#HEADING_TO_LINK_TO   = ["-"  , "-" , "-" , "-"  , "-" , "-" , "-", "-"]
+
+HEADING_TO_LINK_FROM = ["|", "," , " "]
+HEADING_TO_LINK_TO   = [" ", " " , "-"]
+
+HEADING_TO_LINK_FROM = ",;:| "
+
 '''
     {"from": " ", "to": "-"},
     {"from": ",", "to": ""},
@@ -217,7 +224,7 @@ def get_anchors(file: str) -> list:
                 repeat = 0
             anchor = {
                 "heading": heading, 
-                "link": f'#{heading.lower().replace(" ", "-")}',
+                "link": f'#{clean_link(heading)}',
                 "repeat": repeat,
                 "level": level
             }       
@@ -236,12 +243,22 @@ def clean_link(heading: str) -> str:
     -------
     cleaned_link : str
     """
+    return re.sub(r'\s*[' + re.escape(HEADING_TO_LINK_FROM) + r']\s*', '-', heading.strip())
 
-    print()
-    for element in HEADING_TO_LINK:
-        #heading = re.sub(element["from"], element["to"], heading)
-        heading = heading.replace(element["from"], element["to"])
+    pattern = r'\s*[' + re.escape(HEADING_TO_LINK_FROM) + r']\s*'
+    
+    # Replace matches of the pattern with a hyphen
+    heading = re.sub(pattern, '-', heading)
+    
+    # Replace multiple spaces or tabs with a single hyphen
+    heading = re.sub(r'\s+', '-', heading)
     return heading
+
+    
+
+    #return re.sub(HEADING_TO_LINK_FROM, '-', heading)
+    return '-'.join(filter(None, re.sub(HEADING_TO_LINK_FROM, '-', heading.strip()).split()))
+    #return '-'.join(filter(None, heading.translate(str.maketrans('', '', HEADING_TO_LINK_FROM)).split()))
 
 
 def get_heading_level(line: str) -> int:
