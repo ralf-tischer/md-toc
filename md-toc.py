@@ -1,29 +1,20 @@
-'''
+"""
 Browse through the specified files and create table of contents (TOC) in each file.
-If already existing, the TOC will be updated.
+If already existing, update the TOC.
 
 Parameters:
 -----------
-python md-toc -f "myfile.md" -p "mypath/" 
+python .\md-toc.py -f README.md -p "mypath/" 
     -f or --files: list of files, default=None
     -p or --paths: list of paths, default=None
 
 Examples
 --------
--r https://github.com/RalfTischer/coding-cookbook
--f general.md
-    
-'''
+-f README.md
+"""
+
 import argparse
 import re
-
-ANCHOR_REGEX = r"^#+\s*(.+?)\s*#*"
-HEADING_LEVELS = {
-    "#": 1, 
-    "##": 2,
-    "###": 3, 
-    "####": 4
-}
 
 
 def main():
@@ -48,6 +39,7 @@ def parse_command_line() -> tuple:
     filenames : list of str
     paths : list of paths
     """
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--files", nargs="+", default=[])  
     parser.add_argument("-p", "--paths", nargs="+", default=[])
@@ -60,7 +52,7 @@ def parse_command_line() -> tuple:
 
 
 def update_toc(filename: str) -> bool:
-    """ Update table of content of a single file
+    """ Update table of content of a single file.
 
     Parameters
     ----------
@@ -71,9 +63,11 @@ def update_toc(filename: str) -> bool:
     -------
     was_updated : bool
     """
+
     file = read_content(filename)
     max_level = 99  # TODO: max_level
     toc = create_toc(file, max_level)
+    print(toc)
 
     if toc_exists(file):
         file = overwrite_toc(file, toc)
@@ -84,7 +78,7 @@ def update_toc(filename: str) -> bool:
 
 
 def read_content(filename: str) -> str:
-  """ Read the content of a file from the local directory
+  """ Read the content of a file from the local directory.
   
   Parameters
   ----------
@@ -95,13 +89,14 @@ def read_content(filename: str) -> str:
   -------
   content : str
   """
+
   with open(filename) as f:
     content = f.read()
   return content
 
 
 def create_toc(file: str, max_level: int = 99) -> str:
-    """ Create table of content in markdown format
+    """ Create table of content in markdown format.
 
     Parameters
     ----------
@@ -112,14 +107,15 @@ def create_toc(file: str, max_level: int = 99) -> str:
     -------
     toc : str
     """
+
     anchors = get_anchors(file)
     print("Anchors:", anchors)
     
-    toc = "## Table of Contents\n\n"    
+    toc = "# Table of Contents\n\n"    
     for item in anchors:
         if item["level"] <= max_level:
             indent = "  " * (item["level"] - 1)
-            toc += f"{indent}- [{item['heading']}](#{item['link']})\n"
+            toc += f"{indent}- [{item['heading']}]({item['link']})\n"
     return toc
 
 
@@ -177,7 +173,7 @@ def get_anchors(file: str) -> list:
             # TODO: check count up, but create a new entry 
             if existing:
                 max_repeat = max(item["repeat"] for item in existing)
-                repeat += msx_repeat + 1
+                repeat += max_repeat + 1
             else:
                 repeat = 0
             anchor = {
@@ -191,7 +187,8 @@ def get_anchors(file: str) -> list:
 
 
 def get_heading_level(line: str) -> int:
-    """ Get level of a heading line by counting #"""
+    """ Get level of a heading line by counting `#`"""
+
     count = 0
     for char in line:
         if char == "#":
