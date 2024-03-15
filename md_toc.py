@@ -10,7 +10,7 @@ Parameters:
 
 Examples
 --------
-python .\md_toc.py -f README.md -p "Level1_test\Level2_test"
+python .\md_toc.py -f README.md -p "Level1_test\Level2_test -s"
 """
 
 import argparse
@@ -25,6 +25,7 @@ TOC_HEADING = "Table of Contents"
 MD_TOC_TOKEN = "<!-- MD-TOC START LEVEL %L -->\n\n"
 MD_TOC_TOKEN_START = "<!-- MD-TOC START LEVEL "
 MD_TOC_TOKEN_END = "<!-- MD-TOC END -->"
+
 
 def main():
     filenames, paths, sub, max_level = parse_command_line()
@@ -42,7 +43,7 @@ def main():
             if update_toc(filename, max_level):
                 files_updated += 1
 
-    print(f"{len(filenames)} files analzed, {files_updated} files updated.\n")
+    print(f"{len(filenames)} files analyzed, {files_updated} files updated.\n")
 
 
 def parse_command_line() -> tuple:
@@ -70,6 +71,7 @@ def parse_command_line() -> tuple:
     paths = args.paths
     sub = args.sub
     level = args.level
+
     return filenames, paths, sub, level
 
 
@@ -156,14 +158,18 @@ def get_existing_toc_level(file: str) -> int:
         if line.startswith(MD_TOC_TOKEN_START):
             match = re.search(r"LEVEL\s+(\d+)", line)   # Check for token `LEVEL`
             if match: 
-                return int(match.group(1))
+                # Found correct
+                return int(match.group(1))      
             else:
-                return MAX_LEVEL_DEFAULT
-    return 0
+                # Found incorrect
+                return MAX_LEVEL_DEFAULT        
+    
+    # Not found
+    return 0    
         
     
 def overwrite_toc(file: str, toc: str) -> str:
-    """ Overwrite exsiting TOC.
+    """ Overwrite existing TOC.
 
     Find start and end token, delete everything in between and put in new content.
 
@@ -186,7 +192,7 @@ def overwrite_toc(file: str, toc: str) -> str:
         if line.startswith(MD_TOC_TOKEN_START):
             start = index
         elif line.startswith(MD_TOC_TOKEN_END):
-            end = index + CR_QTY_AFTER_TOC
+            end = index + CR_QTY_AFTER_TOC  # Include added `/n`
             break
 
     if start and end:
@@ -198,6 +204,18 @@ def overwrite_toc(file: str, toc: str) -> str:
 
 
 def insert_toc(file: str, toc: str) -> str:
+    """ Insert TOC.
+
+    Parameters
+    ----------
+    file : str
+    toc : str
+
+    Returns:
+    --------
+    updated_file : str 
+    """
+
     return toc + file
 
 
@@ -248,11 +266,12 @@ def get_anchors(file: str) -> list:
                 "level": level
             }       
             anchors.append(anchor)
+
     return anchors
 
 
 def clean_link(heading: str) -> str:
-    """ Clean link to md format.
+    """ Clean heading to prepare anchor link for md format.
 
     Parameters
     ----------
@@ -266,8 +285,9 @@ def clean_link(heading: str) -> str:
     # Lowercase
     result = heading.lower()
 
-    # Replace special charcters as defined in HEADING_TO_LINK_FROM to `-`
+    # Replace special characters as defined in HEADING_TO_LINK_FROM to `-`
     result = re.sub(r'\s*[' + re.escape(HEADING_TO_LINK_FROM) + r']\s*', '-', result.strip())
+
     return result
 
 
@@ -280,6 +300,7 @@ def get_heading_level(line: str) -> int:
             count += 1
         else:
             break
+
     return count
 
 
@@ -298,6 +319,7 @@ def read_file(filename: str) -> str:
 
   with open(filename) as f:
     content = f.read()
+
   return content
 
 
@@ -315,6 +337,7 @@ def save_file(file: str, filename: str) -> bool:
     -------
     success : bool
     """
+
     with open(filename, 'w') as f:
         # Write the string to the file
         f.write(file)
@@ -339,9 +362,9 @@ def get_all_files_from_path(directory: str, sub: bool = False) -> str:
                 files.append(os.path.join(directory, entry.name))
         elif entry.is_dir() and sub:  
             files.extend(get_all_files_from_path(entry.path, sub))
+
     return files
 
 
 if __name__ == "__main__":
     main()
-    
