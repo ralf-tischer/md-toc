@@ -42,7 +42,7 @@ def main():
             if update_toc(filename, max_level):
                 files_updated += 1
 
-    print(f"{files_updated} files updated.")
+    print(f"{len(filenames)} files analzed, {files_updated} files updated.\n")
 
 
 def parse_command_line() -> tuple:
