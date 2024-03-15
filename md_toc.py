@@ -4,17 +4,18 @@ If already existing, update the TOC.
 
 Parameters:
 -----------
-python .\md-toc.py -f README.md -p "mypath/" 
-    -f or --files: list of files, default=None
-    -p or --paths: list of paths, default=None
+-f or --files: list of files, default=None
+-p or --paths: list of paths, default=None
+-s or --sub: if set, browse all paths sub-directories
 
 Examples
 --------
--f README.md
+python .\md_toc.py -f README.md -p "Level1_test\Level2_test"
 """
 
 import argparse
 import re
+import os
 
 HEADING_TO_LINK_FROM = ",;:| "  # Chars to be replaced by `-` in a heading to create the link
 TOC_HEADING = "Table of Contents"
@@ -24,14 +25,22 @@ MD_TOC_TOKEN_END = "<!-- MD-TOC END -->"
 CR_QTY_AFTER_TOC = 2            # Number of `/n` after TOC
 
 def main():
-    filenames, paths = parse_command_line()
-    # TODO: paths
+    filenames, paths, sub = parse_command_line()
+    
+    if paths:
+        filenames_from_paths = []
+        for path in paths:
+            filenames_from_paths += get_all_files_from_path(path, sub)
+        filenames += filenames_from_paths
 
-    files_updated = 0
     # Update table of content
-    for filename in filenames:
-        if update_toc(filename):
-            files_updated += 1
+    files_updated = 0
+    if filenames:
+        for filename in filenames:
+            if update_toc(filename):
+                files_updated += 1
+
+    print(f"{files_updated} files updated.")
 
 
 def parse_command_line() -> tuple:
@@ -46,12 +55,14 @@ def parse_command_line() -> tuple:
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--files", nargs="+", default=[])  
     parser.add_argument("-p", "--paths", nargs="+", default=[])
+    parser.add_argument("-s", "--sub", action="store_true")
 
     args = parser.parse_args()
 
     filenames = args.files
     paths = args.paths
-    return filenames, paths
+    sub = args.sub
+    return filenames, paths, sub
 
 
 def update_toc(filename: str) -> bool:
@@ -70,7 +81,11 @@ def update_toc(filename: str) -> bool:
     file = read_file(filename)
     max_level = 99  # TODO: max_level
     toc = create_toc(file, max_level)
-    print(f"TOC for {filename}\n------------------\n{toc}")
+
+    print("-" * len("TOC for " + filename))
+    print(f"TOC for {filename}")
+    print("-" * len("TOC for " + filename))
+    print(toc)
 
     if toc_exists(file):
         newfile = overwrite_toc(file, toc)
@@ -78,7 +93,7 @@ def update_toc(filename: str) -> bool:
             # Save, if updated
             save_file(newfile, filename)
         else:
-            print("Not saved, because no difference")
+            return False
     else:
         file = insert_toc(file,toc)
         save_file(file, filename)
@@ -156,8 +171,6 @@ def overwrite_toc(file: str, toc: str) -> str:
         elif line.startswith(MD_TOC_TOKEN_END):
             end = index + CR_QTY_AFTER_TOC
             break
-    
-    print(f"Overwriting TOC between {start} and {end}")
 
     if start and end:
         # Slice lines list from start to end
@@ -290,6 +303,26 @@ def save_file(file: str, filename: str) -> bool:
         f.write(file)
 
     return True
+
+
+def get_all_files_from_path(directory: str, sub: bool = False) -> str:
+    """ Provide a list of all files inside a directory including sub-directories.
+
+    Parameters
+    ----------
+    directory : str
+    sub : bool
+        If set browse all sub-directories
+    """
+
+    files = []
+    for entry in os.scandir(directory):
+        if entry.is_file():
+            if entry.name.lower().endswith(".md"):
+                files.append(os.path.join(directory, entry.name))
+        elif entry.is_dir() and sub:  
+            files.extend(get_all_files_from_path(entry.path, sub))
+    return files
 
 
 if __name__ == "__main__":
