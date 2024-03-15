@@ -7,7 +7,7 @@
   - [Subchapter with Attitude](#subchapter-with-attitude)
   - [Subchapter](#subchapter)
     - [Subchapter](#subchapter)
-- [Fun | No Fun](#fun-no-fun)
+- [Fun vs. No Fun](#fun-vs.-no-fun)
 - [Second, but great Headline](#second-but-great-headline)
 
 <!-- MD-TOC END -->

@@ -25,9 +25,6 @@ CR_QTY_AFTER_TOC = 2            # Number of `/n` after TOC
 
 def main():
     filenames, paths = parse_command_line()
-    print(f"files={filenames}") 
-    print(f"paths={paths}")
-
     # TODO: paths
 
     files_updated = 0
@@ -73,14 +70,19 @@ def update_toc(filename: str) -> bool:
     file = read_file(filename)
     max_level = 99  # TODO: max_level
     toc = create_toc(file, max_level)
-    print(toc)
+    print(f"TOC for {filename}\n------------------\n{toc}")
 
     if toc_exists(file):
-        file = overwrite_toc(file, toc)
+        newfile = overwrite_toc(file, toc)
+        if file != newfile:
+            # Save, if updated
+            save_file(newfile, filename)
+        else:
+            print("Not saved, because no difference")
     else:
         file = insert_toc(file,toc)
-
-    save_file(file, filename)
+        save_file(file, filename)
+    
     return True
 
 
@@ -98,7 +100,6 @@ def create_toc(file: str, max_level: int = 99) -> str:
     """
 
     anchors = get_anchors(file)
-    print("Anchors:", anchors)
     
     toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "# " + TOC_HEADING + "\n\n"
     for item in anchors:
