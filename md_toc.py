@@ -17,15 +17,17 @@ import argparse
 import re
 import os
 
+MAX_LEVEL_DEFAULT = 99          # Defualt levels of TOC
+CR_QTY_AFTER_TOC = 2            # Number of `/n` after TOC
+
 HEADING_TO_LINK_FROM = ",;:| "  # Chars to be replaced by `-` in a heading to create the link
 TOC_HEADING = "Table of Contents"
 MD_TOC_TOKEN = "<!-- MD-TOC START LEVEL %L -->\n\n"
 MD_TOC_TOKEN_START = "<!-- MD-TOC START LEVEL "
 MD_TOC_TOKEN_END = "<!-- MD-TOC END -->"
-CR_QTY_AFTER_TOC = 2            # Number of `/n` after TOC
 
 def main():
-    filenames, paths, sub = parse_command_line()
+    filenames, paths, sub, max_level = parse_command_line()
     
     if paths:
         filenames_from_paths = []
@@ -37,7 +39,7 @@ def main():
     files_updated = 0
     if filenames:
         for filename in filenames:
-            if update_toc(filename):
+            if update_toc(filename, max_level):
                 files_updated += 1
 
     print(f"{files_updated} files updated.")
@@ -50,10 +52,15 @@ def parse_command_line() -> tuple:
     -------
     filenames : list of str
     paths : list of paths
+    sub : bool
+        True if all subdirectories are included
+    level : int
+        Maximum level to be included in TOC
     """
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--files", nargs="+", default=[])  
+    parser.add_argument("-f", "--files", nargs="+", default=[])
+    parser.add_argument("-l", "--level", type=int, default=MAX_LEVEL_DEFAULT)
     parser.add_argument("-p", "--paths", nargs="+", default=[])
     parser.add_argument("-s", "--sub", action="store_true")
 
@@ -62,16 +69,19 @@ def parse_command_line() -> tuple:
     filenames = args.files
     paths = args.paths
     sub = args.sub
-    return filenames, paths, sub
+    level = args.level
+    return filenames, paths, sub, level
 
 
-def update_toc(filename: str) -> bool:
+def update_toc(filename: str, max_level : int) -> bool:
     """ Update table of content of a single file.
 
     Parameters
     ----------
     filename : str
         Including path, if required
+    max_level : int
+        Maximum level to be included in TOC
 
     Returns
     -------
@@ -79,15 +89,16 @@ def update_toc(filename: str) -> bool:
     """
 
     file = read_file(filename)
-    max_level = 99  # TODO: max_level
-    toc = create_toc(file, max_level)
+    level = get_existing_toc_level(file)
+    toc = create_toc(file, level)
 
     print("-" * len("TOC for " + filename))
     print(f"TOC for {filename}")
     print("-" * len("TOC for " + filename))
     print(toc)
 
-    if toc_exists(file):
+    if level > 0:
+        # Overwrite if TOC exists
         newfile = overwrite_toc(file, toc)
         if file != newfile:
             # Save, if updated
@@ -95,6 +106,7 @@ def update_toc(filename: str) -> bool:
         else:
             return False
     else:
+        # Create new
         file = insert_toc(file,toc)
         save_file(file, filename)
     
@@ -125,8 +137,10 @@ def create_toc(file: str, max_level: int = 99) -> str:
     return toc
 
 
-def toc_exists(file: str) -> bool:
-    """ Check if file already has a md-toc.
+def get_existing_toc_level(file: str) -> int:
+    """ Check if file already has a md-toc. 
+    
+    If yes, return the max level.
 
     Parameters
     ----------
@@ -134,15 +148,18 @@ def toc_exists(file: str) -> bool:
 
     Returns:
     --------
-    toc_exists : bool 
+    get_existing_toc_level : bool 
     """
 
     lines = file.split("\n")
-
     for line in lines:
         if line.startswith(MD_TOC_TOKEN_START):
-            return True
-    return False
+            match = re.search(r"LEVEL\s+(\d+)", line)   # Check for token `LEVEL`
+            if match: 
+                return int(match.group(1))
+            else:
+                return MAX_LEVEL_DEFAULT
+    return 0
         
     
 def overwrite_toc(file: str, toc: str) -> str:
@@ -208,7 +225,7 @@ def get_anchors(file: str) -> list:
             in_code_block = not in_code_block
             continue
 
-        if in_code_block or re.search(r"`.*?#.*?`", line):  
+        if in_code_block or re.search(r"`.*?#.*?`", line):
             continue
 
         if line.startswith("#") and "```" not in line:
