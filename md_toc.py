@@ -16,24 +16,12 @@ Examples
 import argparse
 import re
 
-#HEADING_TO_LINK_FROM = [" | ", " |", "| ", " , ", " ,", ", ", ",", " "]
-#HEADING_TO_LINK_TO   = ["-"  , "-" , "-" , "-"  , "-" , "-" , "-", "-"]
-
-HEADING_TO_LINK_FROM = ["|", "," , " "]
-HEADING_TO_LINK_TO   = [" ", " " , "-"]
-
-HEADING_TO_LINK_FROM = ",;:| "
-
-'''
-    {"from": " ", "to": "-"},
-    {"from": ",", "to": ""},
-    {"from": ", ", "to": "-"}
-'''
-
+HEADING_TO_LINK_FROM = ",;:| "  # Chars to be replaced by `-` in a heading to create the link
 TOC_HEADING = "Table of Contents"
 MD_TOC_TOKEN = "<!-- MD-TOC START LEVEL %L -->\n\n"
 MD_TOC_TOKEN_START = "<!-- MD-TOC START LEVEL "
 MD_TOC_TOKEN_END = "<!-- MD-TOC END -->"
+CR_QTY_AFTER_TOC = 2            # Number of `/n` after TOC
 
 def main():
     filenames, paths = parse_command_line()
@@ -117,7 +105,7 @@ def create_toc(file: str, max_level: int = 99) -> str:
         if item["level"] <= max_level and item["heading"] != TOC_HEADING:
             indent = "  " * (item["level"] - 1)
             toc += f"{indent}- [{item['heading']}]({item['link']})\n"
-    toc += "\n" + MD_TOC_TOKEN_END
+    toc += "\n" + MD_TOC_TOKEN_END + "\n" * CR_QTY_AFTER_TOC
     return toc
 
 
@@ -165,7 +153,7 @@ def overwrite_toc(file: str, toc: str) -> str:
         if line.startswith(MD_TOC_TOKEN_START):
             start = index
         elif line.startswith(MD_TOC_TOKEN_END):
-            end = index
+            end = index + CR_QTY_AFTER_TOC
             break
     
     print(f"Overwriting TOC between {start} and {end}")
@@ -243,22 +231,13 @@ def clean_link(heading: str) -> str:
     -------
     cleaned_link : str
     """
-    return re.sub(r'\s*[' + re.escape(HEADING_TO_LINK_FROM) + r']\s*', '-', heading.strip())
 
-    pattern = r'\s*[' + re.escape(HEADING_TO_LINK_FROM) + r']\s*'
-    
-    # Replace matches of the pattern with a hyphen
-    heading = re.sub(pattern, '-', heading)
-    
-    # Replace multiple spaces or tabs with a single hyphen
-    heading = re.sub(r'\s+', '-', heading)
-    return heading
+    # Lowercase
+    result = heading.lower()
 
-    
-
-    #return re.sub(HEADING_TO_LINK_FROM, '-', heading)
-    return '-'.join(filter(None, re.sub(HEADING_TO_LINK_FROM, '-', heading.strip()).split()))
-    #return '-'.join(filter(None, heading.translate(str.maketrans('', '', HEADING_TO_LINK_FROM)).split()))
+    # Replace special charcters as defined in HEADING_TO_LINK_FROM to `-`
+    result = re.sub(r'\s*[' + re.escape(HEADING_TO_LINK_FROM) + r']\s*', '-', result.strip())
+    return result
 
 
 def get_heading_level(line: str) -> int:
