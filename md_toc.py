@@ -7,11 +7,15 @@ Parameters:
 -f or --files: list of files, default=None
 -p or --paths: list of paths, default=None
 -s or --sub: if set, browse all paths sub-directories
+-l or --level: maximum level of headings to be included to TOC
 
 Examples
 --------
 python .\md_toc.py -f README.md -p "Level1_test\Level2_test -s"
 """
+
+# TODO: ignore headings before start token 
+# TODO: handle external files
 
 import argparse
 import re
