@@ -29,7 +29,7 @@ python ./md_toc.py -f README.md
 ```
 
 Options:
-* `-f` or `--files`: list of files, required
+* `-f` or `--files`: list of files, optional
 * `-p` or `--paths`: list of paths, optional
 * `-s` or `--sub`: if set, browse all paths sub-directories, optional
 * `-l` or `--level`: maximum level of headings to be included to TOC, optional, default=99
