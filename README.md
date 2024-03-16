@@ -20,7 +20,7 @@ A command line tool to automatically create a table of content (TOC) for markup 
 
 Copy `md_toc.py` to main path of local directory:
 ```bash
-https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py
+wget https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py
 ```
 
 Start md-toc from command line. 
