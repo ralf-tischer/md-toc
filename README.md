@@ -1,6 +1,6 @@
 # MD-TOC
 
-A command line tool to automatically create a table of content (TOC) for markup files with file extension `.md`. 
+A command line tool to automatically create a table of content (TOC) for markdown files with file extension `.md`. 
 
 <!-- MD-TOC START LEVEL 99 -->
 
