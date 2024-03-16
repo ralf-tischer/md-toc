@@ -41,9 +41,9 @@ rm md_toc.py
 
 ## Examples
 
-Create TOC for README.md download to level 3:
+Create TOC for `README.md` and `describe.py` to level 3:
 ```bash
-python ./md_toc.py -f README.md --level 3
+python ./md_toc.py -f README.md describe.py --level 3
 ```
 
 Create TOC for all .md files in current directory with all levels:
@@ -51,9 +51,9 @@ Create TOC for all .md files in current directory with all levels:
 python ./md_toc.py -p "."
 ```
 
-Create TOC for all .md files in current directory including all subdirectories with all levels:
+Create TOC for all .md files in `path/` directory including all subdirectories with all levels:
 ```bash
-python ./md_toc.py -p "." -s
+python ./md_toc.py -p "path/" -s
 ```
 
 # Test Data
