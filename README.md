@@ -16,7 +16,23 @@ A command line tool to automatically create a table of content (TOC) for markdow
 
 <!-- MD-TOC END -->
 
-## Usage 
+## Usage
+
+### Prepare Markdown File
+
+The md-toc script will browse through the markdown file and search for (not printed) tokens. These tokens marks beginning and end of an existing table of content. 
+The tokens will be added automatically by the script when the TOC is placed at the beginning of the file. 
+Alternatively, the start and end tokens can be placed in the file manually. Level specifies the number of heading levels to be included to the TOC:
+
+```bash
+<!-- MD-TOC START LEVEL 3 -->
+
+Between the tokens everything will be overwritten.
+
+<!-- MD-TOC END -->
+```
+
+### Run Script
 
 Copy `md_toc.py` to main path of local directory:
 ```bash
