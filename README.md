@@ -6,21 +6,20 @@ A command line tool to automatically create a table of content (TOC) for markdow
 
 # Table of Contents
 
-- [djkjf](#djkjf)
-- [First Headline](#first-headline)
-  - [Subchapter with Attitude](#subchapter-with-attitude)
-  - [Subchapter](#subchapter)
-    - [Subchapter](#subchapter)
-- [Fun vs. No Fun](#fun-vs.-no-fun)
-- [Second, but great Headline](#second-but-great-headline)
+  - [Usage](#usage)
+    - [Prepare Markdown File](#prepare-markdown-file)
+    - [Run Script](#run-script)
+  - [Examples](#examples)
+  - [Author](#author)
 
 <!-- MD-TOC END -->
 
-## Usage
+
 
 ### Prepare Markdown File
 
-The md-toc script will browse through the markdown file and search for (not printed) tokens. These tokens marks beginning and end of an existing table of content. 
+The _MD-TOC_ script will browse through the markdown file and search for (not printed) tokens. These tokens marks beginning and end of an existing table of content. 
+If tokens are found, _MD-TOC_ will start parsing after the end token. So a title before the TOC will not be included to teh new TOC.
 The tokens will be added automatically by the script when the TOC is placed at the beginning of the file. 
 Alternatively, the start and end tokens can be placed in the file manually. Level specifies the number of heading levels to be included to the TOC:
 
@@ -39,7 +38,7 @@ Copy `md_toc.py` to main path of local directory:
 wget https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py
 ```
 
-Start md-toc from command line. 
+Start _MD-TOC_ from command line. 
 ```bash
 python ./md_toc.py -f README.md
 ```
@@ -50,7 +49,7 @@ Options:
 * `-s` or `--sub`: if set, browse all paths sub-directories, optional
 * `-l` or `--level`: maximum level of headings to be included to TOC, optional, default=99
 
-When finished, delete the local copy of md-toc:
+When finished, delete the local copy of _MD-TOC_:
 ```bash
 rm md_toc.py
 ```
