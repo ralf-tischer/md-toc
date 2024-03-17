@@ -95,6 +95,7 @@ def update_toc(filename: str, max_level : int) -> bool:
 
     file = read_file(filename)
     start, end, level = parse_existing_toc(file)
+
     toc = create_toc(file, start_at_line=end, max_level=level)
 
     print("-" * len("TOC for " + filename))
@@ -102,9 +103,9 @@ def update_toc(filename: str, max_level : int) -> bool:
     print("-" * len("TOC for " + filename))
     print(toc)
 
-    if level > 0:
+    if end:
         # Overwrite if TOC exists
-        newfile = overwrite_toc(file, toc, start, end - 1)
+        newfile = overwrite_toc(file, toc, start, end)
         if file != newfile:
             # Save, if updated
             save_file(newfile, filename)
@@ -137,10 +138,19 @@ def parse_existing_toc(file: str) -> tuple:
     lines = file.split("\n")
     start = None
     end = None
-    level = 0
+    level = MAX_LEVEL_DEFAULT
+    in_code_block = False
+    
 
     # Find start, end tokens and level
     for index, line in enumerate(lines):
+        if "```" in line:
+            in_code_block = not in_code_block
+            continue
+
+        if in_code_block:
+            continue
+
         if line.startswith(MD_TOC_TOKEN_START):
             start = index
             match = re.search(r"LEVEL\s+(\d+)", line)   # Check for token `LEVEL`
@@ -170,15 +180,17 @@ def create_toc(file: str, start_at_line: int, max_level: int = MAX_LEVEL_DEFAULT
     -------
     toc : str
     """
+    if start_at_line:
+        anchors = get_anchors(file, start_at_line)
+    else:
+        anchors = get_anchors(file)
 
-    anchors = get_anchors(file, start_at_line)
-    
     toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "# " + TOC_HEADING + "\n\n"
     for item in anchors:
         if item["level"] <= max_level and item["heading"] != TOC_HEADING:
             indent = "  " * (item["level"] - 1)
             toc += f"{indent}- [{item['heading']}]({item['link']})\n"
-    toc += "\n" + MD_TOC_TOKEN_END + "\n" * CR_QTY_AFTER_TOC
+    toc += "\n" + MD_TOC_TOKEN_END + "\n" * (CR_QTY_AFTER_TOC)
     return toc
        
     
@@ -200,9 +212,11 @@ def overwrite_toc(file: str, toc: str, start: int, end: int) -> str:
     """
 
     if start and end:
+
         # Slice lines list from start to end
         lines = file.split("\n")
-        file = "\n".join(lines[:start] + [toc] + lines[end+1:])
+        toc = toc[:-1]
+        file = "\n".join(lines[:start] + [toc] + lines[end:])
 
     return file
 
