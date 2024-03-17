@@ -25,6 +25,7 @@ CR_QTY_AFTER_TOC = 2            # Number of `/n` after TOC
 
 HEADING_TO_LINK_FROM = ",;:| "  # Chars to be replaced by `-` in a heading to create the link
 TOC_HEADING = "Table of Contents"
+TOC_LEVEL = 2     # Number of `#` of created TOC
 MD_TOC_TOKEN = "<!-- MD-TOC START LEVEL %L -->\n\n"
 MD_TOC_TOKEN_START = "<!-- MD-TOC START LEVEL "
 MD_TOC_TOKEN_END = "<!-- MD-TOC END -->"
@@ -185,7 +186,7 @@ def create_toc(file: str, start_at_line: int, max_level: int = MAX_LEVEL_DEFAULT
     else:
         anchors = get_anchors(file)
 
-    toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "# " + TOC_HEADING + "\n\n"
+    toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "#" * TOC_LEVEL + " + TOC_HEADING + "\n\n"
     for item in anchors:
         if item["level"] <= max_level and item["heading"] != TOC_HEADING:
             indent = "  " * (item["level"] - 1)
