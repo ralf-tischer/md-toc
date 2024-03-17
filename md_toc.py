@@ -104,7 +104,7 @@ def update_toc(filename: str, max_level : int) -> bool:
 
     if level > 0:
         # Overwrite if TOC exists
-        newfile = overwrite_toc(file, toc, start, end)
+        newfile = overwrite_toc(file, toc, start, end - 1)
         if file != newfile:
             # Save, if updated
             save_file(newfile, filename)
