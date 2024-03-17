@@ -18,9 +18,9 @@ A command line tool to automatically create a table of content (TOC) for markdow
 
 ### Prepare Markdown File
 
-The _MD-TOC_ script will browse through the markdown file and search for (not printed) tokens. These tokens marks beginning and end of an existing table of content. 
-If tokens are found, _MD-TOC_ will start parsing after the end token. So a title before the TOC will not be included to teh new TOC.
-The tokens will be added automatically by the script when the TOC is placed at the beginning of the file. 
+The _MD-TOC_ script browses through the markdown file and search for (not printed) tokens. These tokens mark beginning and end of an existing table of content. 
+If the tokens are found, _MD-TOC_ starts parsing after the end token. So any heading before the TOC - including the title - will not be included to the new TOC.
+If not set, the tokens are automatically added by the script and the TOC is placed at the beginning of the file. 
 Alternatively, the start and end tokens can be placed in the file manually. Level specifies the number of heading levels to be included to the TOC:
 
 ```bash
