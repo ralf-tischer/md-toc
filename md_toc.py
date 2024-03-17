@@ -14,8 +14,7 @@ Examples
 python .\md_toc.py -f README.md -p "Level1_test\Level2_test -s"
 """
 
-# TODO: ignore headings before start token 
-# TODO: handle external files
+# TODO: Handle external files
 
 import argparse
 import re
@@ -95,8 +94,8 @@ def update_toc(filename: str, max_level : int) -> bool:
     """
 
     file = read_file(filename)
-    level = get_existing_toc_level(file)
-    toc = create_toc(file, level)
+    start, end, level = parse_existing_toc(file)
+    toc = create_toc(file, start_at_line=end, max_level=level)
 
     print("-" * len("TOC for " + filename))
     print(f"TOC for {filename}")
@@ -105,7 +104,7 @@ def update_toc(filename: str, max_level : int) -> bool:
 
     if level > 0:
         # Overwrite if TOC exists
-        newfile = overwrite_toc(file, toc)
+        newfile = overwrite_toc(file, toc, start, end)
         if file != newfile:
             # Save, if updated
             save_file(newfile, filename)
@@ -119,12 +118,52 @@ def update_toc(filename: str, max_level : int) -> bool:
     return True
 
 
-def create_toc(file: str, max_level: int = 99) -> str:
+def parse_existing_toc(file: str) -> tuple:
+    """
+    Parameters
+    ----------
+    file : str
+
+    Returns
+    -------
+    start : int
+        `None` it not detected
+    end : int
+        `None` it not detected
+    level : int
+        `0` it not detected
+    """
+
+    lines = file.split("\n")
+    start = None
+    end = None
+    level = 0
+
+    # Find start, end tokens and level
+    for index, line in enumerate(lines):
+        if line.startswith(MD_TOC_TOKEN_START):
+            start = index
+            match = re.search(r"LEVEL\s+(\d+)", line)   # Check for token `LEVEL`
+            if match: 
+                # Found correct token
+                level = int(match.group(1))      
+            else:
+                # Found incorrect tokeb
+                level = MAX_LEVEL_DEFAULT        
+        elif line.startswith(MD_TOC_TOKEN_END):
+            end = index + CR_QTY_AFTER_TOC  # Include added `/n`
+            break
+
+    return start, end, level
+
+
+def create_toc(file: str, start_at_line: int, max_level: int = MAX_LEVEL_DEFAULT) -> str:
     """ Create table of content in markdown format.
 
     Parameters
     ----------
     file : str
+    start_at_line : int
     max_level : into, default = 99
 
     Returns
@@ -132,7 +171,7 @@ def create_toc(file: str, max_level: int = 99) -> str:
     toc : str
     """
 
-    anchors = get_anchors(file)
+    anchors = get_anchors(file, start_at_line)
     
     toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "# " + TOC_HEADING + "\n\n"
     for item in anchors:
@@ -141,67 +180,28 @@ def create_toc(file: str, max_level: int = 99) -> str:
             toc += f"{indent}- [{item['heading']}]({item['link']})\n"
     toc += "\n" + MD_TOC_TOKEN_END + "\n" * CR_QTY_AFTER_TOC
     return toc
-
-
-def get_existing_toc_level(file: str) -> int:
-    """ Check if file already has a md-toc. 
+       
     
-    If yes, return the max level.
-
-    Parameters
-    ----------
-    file : str
-
-    Returns:
-    --------
-    get_existing_toc_level : bool 
-    """
-
-    lines = file.split("\n")
-    for line in lines:
-        if line.startswith(MD_TOC_TOKEN_START):
-            match = re.search(r"LEVEL\s+(\d+)", line)   # Check for token `LEVEL`
-            if match: 
-                # Found correct
-                return int(match.group(1))      
-            else:
-                # Found incorrect
-                return MAX_LEVEL_DEFAULT        
-    
-    # Not found
-    return 0    
-        
-    
-def overwrite_toc(file: str, toc: str) -> str:
+def overwrite_toc(file: str, toc: str, start: int, end: int) -> str:
     """ Overwrite existing TOC.
 
-    Find start and end token, delete everything in between and put in new content.
+    Overwrite TOC.
 
     Parameters
     ----------
     file : str
     toc : str
+    start : int
+    end : int
 
     Returns:
     --------
     updated_file : str 
     """
 
-    lines = file.split("\n")
-    start = None
-    end = None
-
-    # Find start and end tokens
-    for index, line in enumerate(lines):
-        if line.startswith(MD_TOC_TOKEN_START):
-            start = index
-        elif line.startswith(MD_TOC_TOKEN_END):
-            end = index + CR_QTY_AFTER_TOC  # Include added `/n`
-            break
-
     if start and end:
         # Slice lines list from start to end
-        #file = lines[:start] + toc + lines[end+1:]
+        lines = file.split("\n")
         file = "\n".join(lines[:start] + [toc] + lines[end+1:])
 
     return file
@@ -223,13 +223,15 @@ def insert_toc(file: str, toc: str) -> str:
     return toc + file
 
 
-def get_anchors(file: str) -> list:
+def get_anchors(file: str, start_at_line: int = 0) -> list:
     """ Parse file and extract anchors. 
 
     Parameters
     ----------
     file : str
         File content
+    start_at_line : int, default = 0
+        Start parsing at this line index 
 
     Returns
     -------
@@ -241,8 +243,9 @@ def get_anchors(file: str) -> list:
     lines = file.split("\n")
 
     in_code_block = False
-
-    for line in lines:
+    
+    for i in range(start_at_line, len(lines)):
+        line = lines[i]
         if "```" in line:
             in_code_block = not in_code_block
             continue
