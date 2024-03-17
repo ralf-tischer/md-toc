@@ -14,7 +14,7 @@ A command line tool to automatically create a table of content (TOC) for markdow
 
 <!-- MD-TOC END -->
 
-
+## Usage
 
 ### Prepare Markdown File
 
