@@ -24,6 +24,12 @@ Copy `md_toc.py` to main path of local directory:
 wget https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py
 ```
 
+If the above doesn't work in a powershell, try this one:
+
+```bash
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py" -OutFile "md_toc.py"
+```
+
 Start _MD-TOC_ from command line. 
 ```bash
 python ./md_toc.py -f README.md
