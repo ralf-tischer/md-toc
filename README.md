@@ -20,8 +20,15 @@ A command line tool to automatically create tables of content (TOC) for markdown
 ### Run Script
 
 Copy `md_toc.py` to main path of local directory:
+
 ```bash
 wget https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py
+```
+
+In Powershell use `Invike-WebRequest -Uri` to download:
+
+```bash
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py" -OutFile "md_toc.py"
 ```
 
 Start _MD-TOC_ from command line. 
