@@ -4,7 +4,7 @@ A command line tool to automatically create a tables of content (TOC) for markdo
 
 <!-- MD-TOC START LEVEL 99 -->
 
-# Table of Contents
+## Table of Contents
 
   - [Usage](#usage)
     - [Prepare Markdown File](#prepare-markdown-file)
