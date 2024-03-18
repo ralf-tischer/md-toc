@@ -93,4 +93,4 @@ python ./md_toc.py -p "path/" -s
 ## Author
 
 Ralf Tischer, 2024
-ate tables of content (TOC) for markdown files with the file extension `.md`. 
+
