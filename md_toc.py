@@ -14,20 +14,27 @@ Examples
 python .\md_toc.py -f README.md -p "Level1_test\Level2_test -s"
 """
 
-# TODO: Handle external files
+# TODO: Check max_level integrity
 
 import argparse
 import re
 import os
 
-MAX_LEVEL_DEFAULT = 99          # Defualt levels of TOC
+MAX_LEVEL_DEFAULT = 99          # Default levels of TOC
 CR_QTY_AFTER_TOC = 2            # Number of `/n` after TOC
 
-HEADING_TO_LINK_FROM = ",;:| "  # Chars to be replaced by `-` in a heading to create the link
+
+HEADING_TO_LINK_FROM_TO = [                         # Chars to be replaced in a heading to create the link
+    {"pattern": ",;:| ", "replacement": "-"},
+    {"pattern": ".", "replacement": ""}]
+
 TOC_HEADING = "Table of Contents"
 TOC_LEVEL = 2     # Number of `#` of created TOC
-MD_TOC_TOKEN = "<!-- MD-TOC START LEVEL %L -->\n\n"
+
 MD_TOC_TOKEN_START = "<!-- MD-TOC START LEVEL "
+MD_TOC_TOKEN_LEVEL = "<!-- MD-TOC START LEVEL %L -->\n"
+MD_TOC_TOKEN_INCLUDE_START = "<!-- MD-TOC INCLUDE "
+MD_TOC_TOKEN_INCLUDE = "<!-- MD-TOC INCLUDE %I LEVEL %L -->\n"
 MD_TOC_TOKEN_END = "<!-- MD-TOC END -->"
 
 
@@ -98,9 +105,8 @@ def update_toc(filename: str, verbose: bool) -> bool:
     """
 
     file = read_file(filename)
-    start, end, level = parse_existing_toc(file)
-
-    toc = create_toc(file, start_at_line=end, max_level=level)
+    start, end, level, includes = parse_existing_toc(file)
+    toc = create_toc(file, includes, start_at_line=end, max_level=level)
 
     if verbose:
         print("-" * len("TOC for " + filename))
@@ -138,46 +144,102 @@ def parse_existing_toc(file: str) -> tuple:
         `None` it not detected
     level : int
         `0` it not detected
+    includes : list of str
+        List of filenames, [] if empty 
     """
 
     lines = file.split("\n")
     start = None
     end = None
     level = MAX_LEVEL_DEFAULT
-    in_code_block = False
-    
+    includes = []    
 
     # Find start, end tokens and level
+    in_code_block = False
     for index, line in enumerate(lines):
         if "```" in line:
             in_code_block = not in_code_block
+            # Code block start or end
             continue
 
         if in_code_block:
+            # Ignore code block
             continue
 
         if line.startswith(MD_TOC_TOKEN_START):
+            # Start token detected
             start = index
-            match = re.search(r"LEVEL\s+(\d+)", line)   # Check for token `LEVEL`
-            if match: 
-                # Found correct token
-                level = int(match.group(1))      
-            else:
-                # Found incorrect tokeb
-                level = MAX_LEVEL_DEFAULT        
+            level = get_level_in_token(line)
+
         elif line.startswith(MD_TOC_TOKEN_END):
+            # End token detected
             end = index + CR_QTY_AFTER_TOC  # Include added `/n`
             break
 
-    return start, end, level
+        elif line.startswith(MD_TOC_TOKEN_INCLUDE_START):
+            # Include token detected
+            inc_filename = get_include_in_token(line)
+            inc_level = get_level_in_token(line)
+            if inc_filename:
+                includes.append({"filename": inc_filename, "level": inc_level})
+            continue
+
+    return start, end, level, includes
 
 
-def create_toc(file: str, start_at_line: int, max_level: int = MAX_LEVEL_DEFAULT) -> str:
+def get_level_in_token(line: str) -> int:
+    """ Get level inside a line with md-toc token.
+
+    Parameter
+    ---------
+    line : str
+
+    Returns
+    -------
+    level : int, default=MAX_LEVEL_DEFAULT
+    """
+
+    match = re.search(r"LEVEL\s+(\d+)", line)   # Check for token `LEVEL`
+    if match: 
+        # Found level
+        level = int(match.group(1))      
+    else:
+        # Found incorrect token
+        level = MAX_LEVEL_DEFAULT
+    
+    return level
+
+
+def get_include_in_token(line: str) -> str:
+    """ Get include inside a line with md-toc token.
+
+    Parameter
+    ---------
+    line : str
+
+    Returns
+    -------
+    include : str, default=None
+    """
+
+    match = re.search(r"INCLUDE\s+(\S+)", line)   # Check for token `INCLUDE`
+    if match: 
+        # Found include
+        include = match.group(1)
+    else:
+        include = None
+    
+    return include
+
+
+def create_toc(inc_file: str, includes : list, start_at_line: int, max_level: int = MAX_LEVEL_DEFAULT) -> str:
     """ Create table of content in markdown format.
 
     Parameters
     ----------
     file : str
+    includes: list 
+        Filenames to be included
     start_at_line : int
     max_level : into, default = 99
 
@@ -186,18 +248,76 @@ def create_toc(file: str, start_at_line: int, max_level: int = MAX_LEVEL_DEFAULT
     toc : str
     """
     if start_at_line:
-        anchors = get_anchors(file, start_at_line)
+        anchors = get_anchors(inc_file, start_at_line)
     else:
-        anchors = get_anchors(file)
+        anchors = get_anchors(inc_file)
 
-    toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "#" * TOC_LEVEL + " " + TOC_HEADING + "\n\n"
+    # TOC Header
+    toc = MD_TOC_TOKEN_LEVEL.replace("%L", str(max_level)) 
+
+    # Include tokens
+    if includes:
+        for include in includes:
+            line = MD_TOC_TOKEN_INCLUDE.replace("%I", include["filename"])
+            line = line.replace("%L", str(include["level"]))
+            toc += line
+
+    # Heading
+    toc += f"\n{'#' * TOC_LEVEL} {TOC_HEADING}\n"
+
+    # Anchor links
+    toc += "\n" + anchor_list(anchors, max_level)
+
+    # Include anchors
+    if includes:
+        for include in includes:
+            inc_filename = include["filename"]
+            inc_level = include["level"]
+            inc_file = read_file(inc_filename)
+            _, inc_end, _, _ = parse_existing_toc(inc_file)
+
+            if inc_end:
+                inc_anchors = get_anchors(inc_file, inc_end)
+            else:
+                inc_anchors = get_anchors(inc_file)
+
+            toc += f"\n{'#' * (TOC_LEVEL + 1)} {inc_filename}\n" + anchor_list(inc_anchors, inc_level, inc_filename) + "\n"
+
+    # Close token
+    toc += "\n" + MD_TOC_TOKEN_END + "\n" * (CR_QTY_AFTER_TOC)
+    
+    return toc
+
+
+def anchor_list(anchors: list, max_level: int, source: str = None) -> str:
+    """ Create list of anchors as a rough TOC
+
+    Parameters
+    ----------
+    anchors : list of str
+    source : str, default=None
+        Source filename. Will be included to links if set
+
+    Returns
+    -------
+    anchor_list : str
+
+    """
+    anchor_list = ""
+    if anchors == []:
+        return
+    
     for item in anchors:
         if item["level"] <= max_level and item["heading"] != TOC_HEADING:
+            if source:
+                link = f"{source}{item['link']}"
+            else:
+                link = f"{item['link']}"
             indent = "  " * (item["level"] - 1)
-            toc += f"{indent}- [{item['heading']}]({item['link']})\n"
-    toc += "\n" + MD_TOC_TOKEN_END + "\n" * (CR_QTY_AFTER_TOC)
-    return toc
-       
+            anchor_list += f"{indent}- [{item['heading']}]({link})\n"
+
+    return anchor_list
+
     
 def overwrite_toc(file: str, toc: str, start: int, end: int) -> str:
     """ Overwrite existing TOC.
@@ -311,8 +431,11 @@ def clean_link(heading: str) -> str:
     # Lowercase
     result = heading.lower()
 
-    # Replace special characters as defined in HEADING_TO_LINK_FROM to `-`
-    result = re.sub(r'\s*[' + re.escape(HEADING_TO_LINK_FROM) + r']\s*', '-', result.strip())
+    # Replace special characters as defined in HEADING_TO_LINK_FROM_TO
+    for from_to in HEADING_TO_LINK_FROM_TO:
+        pattern = from_to["pattern"]
+        replacement = from_to["replacement"]
+        result = re.sub(r'\s*[' + re.escape(pattern) + r']\s*', replacement, result.strip())
 
     return result
 
