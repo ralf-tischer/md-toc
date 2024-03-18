@@ -32,7 +32,7 @@ MD_TOC_TOKEN_END = "<!-- MD-TOC END -->"
 
 
 def main():
-    filenames, paths, sub, max_level = parse_command_line()
+    filenames, paths, sub, max_level, verbose = parse_command_line()
     
     if paths:
         filenames_from_paths = []
@@ -44,11 +44,10 @@ def main():
     files_updated = 0
     if filenames:
         for filename in filenames:
-            if update_toc(filename, max_level):
+            if update_toc(filename, verbose):
                 files_updated += 1
 
-    print(f"{len(filenames)} files analyzed, {files_updated} files updated.\n")
-
+    print(f"{len(filenames)} files analyzed, {files_updated} files updated.")
 
 def parse_command_line() -> tuple:
     """ Parse command line. 
@@ -57,10 +56,12 @@ def parse_command_line() -> tuple:
     -------
     filenames : list of str
     paths : list of paths
-    sub : bool
-        True if all subdirectories are included
     level : int
         Maximum level to be included in TOC
+    sub : bool
+        True if all subdirectories are included
+    verbose : bool
+        True if verbose mode is selected
     """
 
     parser = argparse.ArgumentParser()
@@ -68,6 +69,7 @@ def parse_command_line() -> tuple:
     parser.add_argument("-l", "--level", type=int, default=MAX_LEVEL_DEFAULT)
     parser.add_argument("-p", "--paths", nargs="+", default=[])
     parser.add_argument("-s", "--sub", action="store_true")
+    parser.add_argument("-v", "--verbose", action="store_true")
 
     args = parser.parse_args()
 
@@ -75,19 +77,20 @@ def parse_command_line() -> tuple:
     paths = args.paths
     sub = args.sub
     level = args.level
+    verbose = args.verbose
 
-    return filenames, paths, sub, level
+    return filenames, paths, sub, level, verbose
 
 
-def update_toc(filename: str, max_level : int) -> bool:
+def update_toc(filename: str, verbose: bool) -> bool:
     """ Update table of content of a single file.
 
     Parameters
     ----------
     filename : str
         Including path, if required
-    max_level : int
-        Maximum level to be included in TOC
+    verbose : bool
+        If True print TOC
 
     Returns
     -------
@@ -99,10 +102,11 @@ def update_toc(filename: str, max_level : int) -> bool:
 
     toc = create_toc(file, start_at_line=end, max_level=level)
 
-    print("-" * len("TOC for " + filename))
-    print(f"TOC for {filename}")
-    print("-" * len("TOC for " + filename))
-    print(toc)
+    if verbose:
+        print("-" * len("TOC for " + filename))
+        print(f"TOC for {filename}")
+        print("-" * len("TOC for " + filename))
+        print(toc)
 
     if end:
         # Overwrite if TOC exists
@@ -116,7 +120,7 @@ def update_toc(filename: str, max_level : int) -> bool:
         # Create new
         file = insert_toc(file,toc)
         save_file(file, filename)
-    
+
     return True
 
 
@@ -186,7 +190,7 @@ def create_toc(file: str, start_at_line: int, max_level: int = MAX_LEVEL_DEFAULT
     else:
         anchors = get_anchors(file)
 
-    toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "#" * TOC_LEVEL + " + TOC_HEADING + "\n\n"
+    toc = MD_TOC_TOKEN.replace("%L", str(max_level)) + "#" * TOC_LEVEL + " " + TOC_HEADING + "\n\n"
     for item in anchors:
         if item["level"] <= max_level and item["heading"] != TOC_HEADING:
             indent = "  " * (item["level"] - 1)
