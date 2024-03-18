@@ -5,11 +5,10 @@ Tools for data preparation and other tasks related to PLM coded in Python.
 Link: [PLM Tools](http://bocdsk0006:5555/)
 
 
-<!-- MD-TOC START LEVEL 3 -->
+<!-- MD-TOC START LEVEL 4 -->
 
-# Table of Contents
+## Table of Contents
 
-- [PLM Tools](#plm-tools)
   - [BOM Navigator](#bom-navigator)
   - [Commissions](#commissions)
   - [Multi-where-used-analysis](#multi-where-used-analysis)
@@ -18,14 +17,17 @@ Link: [PLM Tools](http://bocdsk0006:5555/)
     - [Boms](#boms)
   - [Web Application](#web-application)
   - [Files](#files)
-    - [app.py](#app.py)
-    - [start_server.py](#start_server.py)
-    - [wabtec_erp.py](#wabtec_erp.py)
-    - [wabtec_commissions.py](#wabtec_commissions.py)
-    - [wabtec_itemno.py](#wabtec_itemno.py)
-    - [erptest.py](#erptest.py)
-    - [find_high_runner_assy.py](#find_high_runner_assy.py)
-    - [find_double_references.py](#find_double_references.py)
+    - [app.py](#apppy)
+    - [start_server.py](#start_serverpy)
+    - [wabtec_erp.py](#wabtec_erppy)
+      - [Classes](#classes)
+    - [wabtec_commissions.py](#wabtec_commissionspy)
+      - [Classes](#classes)
+    - [wabtec_itemno.py](#wabtec_itemnopy)
+      - [Routines](#routines)
+    - [erptest.py](#erptestpy)
+    - [find_high_runner_assy.py](#find_high_runner_assypy)
+    - [find_double_references.py](#find_double_referencespy)
   - [Usage and examples](#usage-and-examples)
   - [Author](#author)
 

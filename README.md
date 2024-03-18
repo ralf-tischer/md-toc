@@ -2,7 +2,8 @@
 
 A command line tool to automatically create tables of content (TOC) for markdown files with the file extension `.md`. 
 
-<!-- MD-TOC START LEVEL 99 -->
+<!-- MD-TOC START LEVEL 3 -->
+<!-- MD-TOC INCLUDE test/plm.md LEVEL 3 -->
 
 ## Table of Contents
 
@@ -11,6 +12,27 @@ A command line tool to automatically create tables of content (TOC) for markdown
     - [Run Script](#run-script)
   - [Examples](#examples)
   - [Author](#author)
+
+### test/plm.md
+  - [BOM Navigator](test/plm.md#bom-navigator)
+  - [Commissions](test/plm.md#commissions)
+  - [Multi-where-used-analysis](test/plm.md#multi-where-used-analysis)
+  - [API](test/plm.md#api)
+    - [Items](test/plm.md#items)
+    - [Boms](test/plm.md#boms)
+  - [Web Application](test/plm.md#web-application)
+  - [Files](test/plm.md#files)
+    - [app.py](test/plm.md#apppy)
+    - [start_server.py](test/plm.md#start_serverpy)
+    - [wabtec_erp.py](test/plm.md#wabtec_erppy)
+    - [wabtec_commissions.py](test/plm.md#wabtec_commissionspy)
+    - [wabtec_itemno.py](test/plm.md#wabtec_itemnopy)
+    - [erptest.py](test/plm.md#erptestpy)
+    - [find_high_runner_assy.py](test/plm.md#find_high_runner_assypy)
+    - [find_double_references.py](test/plm.md#find_double_referencespy)
+  - [Usage and examples](test/plm.md#usage-and-examples)
+  - [Author](test/plm.md#author)
+
 
 <!-- MD-TOC END -->
 
@@ -26,7 +48,7 @@ Alternatively, the start and end tokens can be placed in the file manually. Leve
 ```bash
 <!-- MD-TOC START LEVEL 3 -->
 
-Between the tokens everything will be overwritten.
+All text between the tokens will be overwritten by the new table of content.
 
 <!-- MD-TOC END -->
 ```
