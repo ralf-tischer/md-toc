@@ -1,5 +1,7 @@
 # MD-TOC
 
+By Ralf Tischer 2024.
+
 A command line tool to automatically create tables of content (TOC) for markdown files with the file extension `.md`. 
 
 <!-- MD-TOC START LEVEL 3 -->
