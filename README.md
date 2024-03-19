@@ -1,5 +1,7 @@
 # MD-TOC
 
+By Ralf Tischer 2024.
+
 A command line tool to automatically create tables of content (TOC) for markdown files with the file extension `.md`. 
 
 <!-- MD-TOC START LEVEL 3 -->
@@ -20,15 +22,20 @@ A command line tool to automatically create tables of content (TOC) for markdown
 ### Run Script
 
 Copy `md_toc.py` to main path of local directory:
-```bash
-wget https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py
-```
 
-If the above doesn't work in a powershell, try this one:
+* Standard
 
-```bash
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py" -OutFile "md_toc.py"
-```
+  ```bash
+  wget https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py
+  ```
+
+* Powershell
+
+  In Powershell use `Invoke-WebRequest -Uri` to download:
+
+  ```bash
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py" -OutFile "md_toc.py"
+  ```
 
 Start _MD-TOC_ from command line. 
 ```bash
