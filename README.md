@@ -9,6 +9,7 @@ A command line tool to automatically create tables of content (TOC) for markdown
 ## Table of Contents
 
   - [Usage](#usage)
+    - [Clone Script](#clone-script) 
     - [Run Script](#run-script)
     - [Prepare Markdown File](#prepare-markdown-file)
     - [Include External TOCs](#include-external-tocs)
@@ -19,9 +20,9 @@ A command line tool to automatically create tables of content (TOC) for markdown
 
 ## Usage
 
-### Clone and Run Script
+### Clone Script
 
-Copy `md_toc.py` to main path of local directory:
+Copy `md_toc.py` to main path of local directory. 
 
 * Fork
 
@@ -40,6 +41,7 @@ Fork this repository in GitHub and `git clone` into a local folder.
   ```bash
   Invoke-WebRequest -Uri "https://raw.githubusercontent.com/coder-ratz/md-toc/main/md_toc.py" -OutFile "md_toc.py"
   ```
+### Run Script
 
 Start _MD-TOC_ from command line. 
 ```bash
