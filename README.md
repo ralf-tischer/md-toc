@@ -31,7 +31,7 @@ Fork this repository in GitHub and `git clone` into a local folder.
 * Standard
 
   ```bash
-  wget https://raw.githubusercontent.com/RalfTischer/md-toc/main/md_toc.py
+  wget https://raw.githubusercontent.com/coder-ratz/md-toc/main/md_toc.py
   ```
 
 * Powershell
