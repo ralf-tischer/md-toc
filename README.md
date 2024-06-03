@@ -1,6 +1,6 @@
 # MD-TOC
 
-By Ralf Tischer 2024.
+| Ralf Tischer 2024.
 
 A command line tool to automatically create tables of content (TOC) for markdown files with the file extension `.md`. 
 
@@ -31,7 +31,7 @@ Fork this repository in GitHub and `git clone` into a local folder.
 * Standard
 
   ```bash
-  wget https://raw.githubusercontent.com/coder-ratz/md-toc/main/md_toc.py
+  wget https://raw.githubusercontent.com/ralf-tischer/md-toc/main/md_toc.py
   ```
 
 * Powershell
@@ -39,7 +39,7 @@ Fork this repository in GitHub and `git clone` into a local folder.
   In Powershell use `Invoke-WebRequest -Uri` to download:
 
   ```bash
-  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/coder-ratz/md-toc/main/md_toc.py" -OutFile "md_toc.py"
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ralf-tischer/md-toc/main/md_toc.py" -OutFile "md_toc.py"
   ```
 ### Run Script
 
@@ -111,5 +111,5 @@ python ./md_toc.py -p "path/" -s
 ```
 ## Author
 
-Ralf Tischer, 2024
+| Ralf Tischer, 2024
 
