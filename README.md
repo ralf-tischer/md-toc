@@ -4,12 +4,12 @@
 
 A command line tool to automatically create tables of content (TOC) for markdown files with the file extension `.md`. 
 
-<!-- MD-TOC START LEVEL 3 -->
+<!-- MD-TOC START LEVEL 99 -->
 
 ## Table of Contents
 
   - [Usage](#usage)
-    - [Clone Script](#clone-script) 
+    - [Clone Script](#clone-script)
     - [Run Script](#run-script)
     - [Prepare Markdown File](#prepare-markdown-file)
     - [Include External TOCs](#include-external-tocs)

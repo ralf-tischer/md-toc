@@ -51,7 +51,7 @@ def main():
     files_updated = 0
     if filenames:
         for filename in filenames:
-            if update_toc(filename, verbose):
+            if update_toc(filename, verbose, max_level):
                 files_updated += 1
 
     print(f"{len(filenames)} files analyzed, {files_updated} files updated.")
@@ -89,7 +89,7 @@ def parse_command_line() -> tuple:
     return filenames, paths, sub, level, verbose
 
 
-def update_toc(filename: str, verbose: bool) -> bool:
+def update_toc(filename: str, verbose: bool, max_level: int) -> bool:
     """ Update table of content of a single file.
 
     Parameters
@@ -98,6 +98,8 @@ def update_toc(filename: str, verbose: bool) -> bool:
         Including path, if required
     verbose : bool
         If True print TOC
+    max_level : int
+        Maximum level to be included in TOC
 
     Returns
     -------
@@ -106,7 +108,7 @@ def update_toc(filename: str, verbose: bool) -> bool:
 
     file = read_file(filename)
     start, end, level, includes = parse_existing_toc(file)
-    toc = create_toc(file, includes, start_at_line=end, max_level=level)
+    toc = create_toc(file, includes, start_at_line=end, max_level=max_level)
 
     if verbose:
         print("-" * len("TOC for " + filename))
