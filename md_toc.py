@@ -306,8 +306,8 @@ def anchor_list(anchors: list, max_level: int, source: str = None) -> str:
 
     """
     anchor_list = ""
-    if anchors == []:
-        return
+    if not anchors:
+        return anchor_list
     
     for item in anchors:
         if item["level"] <= max_level and item["heading"] != TOC_HEADING:
