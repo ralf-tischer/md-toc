@@ -1,6 +1,6 @@
 # MD-TOC
 
-| Ralf Tischer 2024.
+| Ralf Tischer 2024-2025
 
 A command line tool to automatically create tables of content (TOC) for markdown files with the file extension `.md`. 
 
@@ -111,5 +111,5 @@ python ./md_toc.py -p "path/" -s
 ```
 ## Author
 
-| Ralf Tischer, 2024
+| Ralf Tischer, 2024-2025
 
